@@ -39,6 +39,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="AppEngine API" level="project" />
     <orderEntry type="library" name="AppEngine ORM" level="project" />
+    <orderEntry type="library" name="PukkaCore" level="project" />
+    <orderEntry type="library" name="junit" level="project" />
+    <orderEntry type="library" name="servlet" level="project" />
+    <orderEntry type="library" name="JSON" level="project" />
+    <orderEntry type="library" name="commons" level="project" />
   </component>
 </module>
 

@@ -1,0 +1,29 @@
+<component name="libraryTable">
+  <library name="commons">
+    <CLASSES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/ezmorph-1.0.6.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/xmlbeans-xmlpublic-2.4.0.jar!/" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-lang-2.6" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-io-2.4" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2/apidocs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-lang-2.6/apidocs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-io-2.4/docs" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-lang-2.6" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-io-2.4" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-io-2.4" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-lang-2.6" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-io-2.4" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-lang-2.6" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/commons-logging-1.1.2" recursive="false" type="SOURCES" />
+  </library>
+</component>

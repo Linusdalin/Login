@@ -1,0 +1,189 @@
+package system;
+
+import dataRepresentation.*;
+import databaseLayer.DBKeyInterface;
+import pukkaBO.exceptions.BackOfficeException;
+import pukkaBO.condition.*;
+
+/********************************************************
+ *
+ *    PortalSession - Data Object
+ *    Automatically generated file by GenerateTable.java
+ *
+ *
+ */
+
+public class PortalSession extends DataObject implements DataObjectInterface{
+
+    private static PortalSession longLifeSystem = null;  
+
+
+    private static final DataTableInterface TABLE = (DataTableInterface) new PortalSessionTable();
+
+    public PortalSession(){
+
+        super();         if(table == null)
+            table = TABLE;
+    }
+
+    public PortalSession(DataObjectInterface user, String token, String start, String latest, DataObjectInterface status) throws BackOfficeException{
+
+        this(user.getKey(), token, start, latest, status.getKey());
+    }
+
+
+    public PortalSession(DBKeyInterface user, String token, String start, String latest, DBKeyInterface status) throws BackOfficeException{
+
+        this();
+        ColumnStructureInterface[] columns = getColumnFromTable();
+
+
+        data = new ColumnDataInterface[columns.length];
+
+        data[0] = new ReferenceData(user, columns[0].getTableReference());
+        data[1] = new StringData(token);
+        data[2] = new TimeStampData(start);
+        data[3] = new TimeStampData(latest);
+        data[4] = new ReferenceData(status, columns[4].getTableReference());
+
+        exists = true;
+
+
+    }
+    /*********************************************************************''
+     *
+     *          Load from database
+     *
+     * @param condition - the SQL condition for selecting ONE UNIQUE object
+     */
+
+    public PortalSession(ConditionInterface condition){
+
+        this();
+
+        try{
+            exists = load(condition);
+
+        }catch(BackOfficeException e){
+
+            System.out.println("Error loading object from database" + e.narration);
+            e.printStackTrace();
+        }
+
+    }
+
+    public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
+
+        PortalSession o = new PortalSession();
+        o.data = data;
+        o.exists = true;
+        return o;
+    }
+
+    public DBKeyInterface getUserId(){
+
+        ReferenceData data = (ReferenceData)this.data[0];
+        return data.value;
+    }
+
+    public PortalUser getUser(){
+
+        ReferenceData data = (ReferenceData)this.data[0];
+        return new PortalUser(new LookupByKey(data.value));
+    }
+
+    public void setUser(DBKeyInterface user){
+
+        ReferenceData data = (ReferenceData)this.data[0];
+        data.value = user;
+    }
+
+
+
+    public String getToken(){
+
+        StringData data = (StringData) this.data[1];
+        return data.getStringValue();
+    }
+
+    public void setToken(String token){
+
+        StringData data = (StringData) this.data[1];
+        data.setStringValue(token);
+    }
+
+
+
+    public DBTimeStamp getStart()throws BackOfficeException{
+
+        TimeStampData data = (TimeStampData) this.data[2];
+        return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
+    }
+
+    public void setStart(DBTimeStamp start){
+
+        TimeStampData data = (TimeStampData) this.data[2];
+        data.value = start.getSQLTime().toString();
+    }
+
+
+
+    public DBTimeStamp getLatest()throws BackOfficeException{
+
+        TimeStampData data = (TimeStampData) this.data[3];
+        return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
+    }
+
+    public void setLatest(DBTimeStamp latest){
+
+        TimeStampData data = (TimeStampData) this.data[3];
+        data.value = latest.getSQLTime().toString();
+    }
+
+
+
+    public DBKeyInterface getStatusId(){
+
+        ReferenceData data = (ReferenceData)this.data[4];
+        return data.value;
+    }
+
+    public SessionStatus getStatus(){
+
+        ReferenceData data = (ReferenceData)this.data[4];
+        return new SessionStatus(new LookupByKey(data.value));
+    }
+
+    public void setStatus(DBKeyInterface status){
+
+        ReferenceData data = (ReferenceData)this.data[4];
+        data.value = status;
+    }
+
+
+
+    public static PortalSession getlongLifeSystem( ) throws BackOfficeException{
+
+       if(PortalSession.longLifeSystem == null)
+          PortalSession.longLifeSystem = new PortalSession(new LookupItem().addFilter(new ColumnFilter("Token", "SystemSessionToken")));
+       if(!PortalSession.longLifeSystem.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant longLifeSystem is missing (db update required?)");
+
+       return PortalSession.longLifeSystem;
+     }
+
+
+    public static void clearConstantCache(){
+
+        //  Clear all cache when the application is uploaded.
+
+        PortalSession.longLifeSystem = null;
+    }
+
+    /* Code below this point will not be replaced when regenerating the file*/
+
+    /*__endAutoGenerated*/
+
+
+
+}
