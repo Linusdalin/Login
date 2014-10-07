@@ -5,21 +5,20 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import pukkaBO.exceptions.BackOfficeException;
 import system.PortalSession;
-import system.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-public class ValidateServlet extends GenericServlet {
+public class LogoutServlet extends GenericServlet {
 
-    public static final String DataServletName = "Token";
+    public static final String DataServletName = "Logout";
 
 
     /****************************************************************************'
      *
-     *          Validate a session token
+     *          Post to logout session will close the session
      *
      *
      * @param req
@@ -30,10 +29,9 @@ public class ValidateServlet extends GenericServlet {
      */
 
 
-    public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-       String name;
-       String token;
+        String token;
 
         logRequest(req);
 
@@ -45,24 +43,13 @@ public class ValidateServlet extends GenericServlet {
 
             token          = getMandatoryString    ("token", req);
 
-            if(!sessionManagement.validate(token)){
+            // Check if there is an active session
 
-                returnError("No session", ErrorType.SESSION, HttpServletResponse.SC_FORBIDDEN, resp);
-                return;
-            }
+            String status = sessionManagement.close(token);
 
-            PortalUser user = sessionManagement.getUser();
+            JSONObject json = new JSONObject().put("status", status);
 
-            if(!user.exists())
-                returnError("No user found for session", ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-
-            JSONObject response = new JSONObject()
-                    .put("User", user.getUserId())
-                    .put("Organization", user.getOrganization().getName())
-                    .put(DataServletName, "OK");
-
-            sendJSONResponse(response, formatter, resp);
-
+            sendJSONResponse(json, formatter, resp);
 
 
         } catch (BackOfficeException e) {
@@ -81,9 +68,9 @@ public class ValidateServlet extends GenericServlet {
 
 
 
-    public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        doGet(req, resp);
+        doPost(req, resp);
 
     }
 

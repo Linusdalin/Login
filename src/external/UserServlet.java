@@ -48,6 +48,12 @@ public class UserServlet extends GenericServlet {
             String username         = getMandatoryString("username", req);
             String password         = getMandatoryString("password", req);
 
+            logRequest(req);
+
+            if(!validateSession(req, resp))
+                return;
+
+
             PortalUser parent = sessionManagement.getUser();
 
             PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), username)));
@@ -60,10 +66,8 @@ public class UserServlet extends GenericServlet {
 
             }
 
-
             DBTimeStamp registrationDate = new DBTimeStamp();   // Set now as a registration date
             Organization org = parent.getOrganization();
-
 
             // Create the user
 
@@ -83,19 +87,23 @@ public class UserServlet extends GenericServlet {
 
             }
 
-            // Just added dummy value for test of update. Remove this
+            long existingUsersForOrganization = org.getUsers();
 
-            PortalUser newUser = new PortalUser(username, "", encodedPwd, encodedSalt, registrationDate.getISODate(), org);
+            PortalUser newUser = new PortalUser(username, (existingUsersForOrganization + 1), "", encodedPwd, encodedSalt, registrationDate.getISODate(), org);
             newUser.store();
+
+            org.setUsers(existingUsersForOrganization + 1);
+            org.update();
 
 
             PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new user " + newUser.getName() + " with id " + newUser.getKey());
 
             Formatter formatter = getFormatFromParameters(req);
 
-            JSONObject json = createPostResponse(DataServletName, newUser);
+            JSONObject response = new JSONObject()
+                    .put("user", newUser.getUserId());
 
-            sendJSONResponse(json, formatter, resp);
+            sendJSONResponse(response, formatter, resp);
 
 
         }catch(BackOfficeException e){
@@ -118,39 +126,14 @@ public class UserServlet extends GenericServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        try{
-
-            logRequest(req);
-
-            Formatter formatter = getFormatFromParameters(req);
-
-            PortalUser user = sessionManagement.getUser();
-
-            JSONObject json = new JSONObject()
-                    .put(DataServletName, new JSONObject()
-                            .put("name", user.getName())
-                            .put("email", user.getEmail())
-                            .put("organization", user.getOrganization().getName()));
+        returnError("Get not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
+        resp.flushBuffer();
 
 
-            sendJSONResponse(json, formatter, resp);
-
-        }catch(BackOfficeException e){
-
-            returnError("Error deleting user: " + e.narration, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
-            e.printStackTrace();
-
-        }catch ( Exception e) {
-
-            returnError("Error deleting user: " + e.getMessage(), ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
-            e.printStackTrace();
-        }
 
     }
 
-    // TODO: Add test case for deleting user
 
-    //TODO: We should not delete the object in the database here. We should just change state
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 

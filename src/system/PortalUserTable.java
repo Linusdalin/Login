@@ -1,8 +1,16 @@
 package system;
 
+import system.*;
 import dataRepresentation.*;
+import databaseLayer.DBKeyInterface;
+import java.util.List;
+import java.util.Map;
+import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -18,11 +26,12 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "PortalUser";
     private static final String DESCRIPTION = "All registered users.";
 
-    public enum Columns {Name, Email, Password, Salt, Registration, Organization, }
+    public enum Columns {Name, UserId, Email, Password, Salt, Registration, Organization, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Name", DataColumn.noFormatting),
+            new IntColumn("UserId", DataColumn.noFormatting),
             new StringColumn("Email", DataColumn.noFormatting),
             new StringColumn("Password", DataColumn.noFormatting),
             new StringColumn("Salt", DataColumn.noFormatting),
@@ -54,20 +63,20 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"System", "", "not used", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
-          {"External", "", "not used", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
-          {"Linus", "Linus@dev.null", "abc123", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
-          {"New", "Linus@dev.null", "abc123", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
+          {"System", "0", "", "not used", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
+          {"External", "0", "", "not used", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
+          {"Linus", "1", "Linus@dev.null", "abc123", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
+          {"New", "2", "Linus@dev.null", "abc123", "salt", "2014-01-01", "itClarifies", "itClarifies", "itClarifies", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"demo", "demo@dev.null", "demodemo", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
-          {"admin", "admin@dev.null", "adminadmin", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
-          {"ulf", "ulf@itclarifies.com", "ulfulf", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
-          {"eve", "eve@dev.null", "eve", "salt", "2014-01-01", "evil.org", "itClarifies", "itClarifies", "system"},
+          {"demo", "1", "demo@dev.null", "demodemo", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
+          {"admin", "2", "admin@dev.null", "adminadmin", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
+          {"ulf", "3", "ulf@itclarifies.com", "ulfulf", "salt", "2014-01-01", "demo.org", "itClarifies", "itClarifies", "system"},
+          {"eve", "4", "eve@dev.null", "eve", "salt", "2014-01-01", "evil.org", "itClarifies", "itClarifies", "system"},
 
 
 

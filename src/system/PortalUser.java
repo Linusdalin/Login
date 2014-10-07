@@ -1,9 +1,16 @@
 package system;
 
+import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
+import java.util.List;
+import java.util.Map;
+import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -29,13 +36,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public PortalUser(String name, String email, String password, String salt, String registration, DataObjectInterface organization) throws BackOfficeException{
+    public PortalUser(String name, long userid, String email, String password, String salt, String registration, DataObjectInterface organization) throws BackOfficeException{
 
-        this(name, email, password, salt, registration, organization.getKey());
+        this(name, userid, email, password, salt, registration, organization.getKey());
     }
 
 
-    public PortalUser(String name, String email, String password, String salt, String registration, DBKeyInterface organization) throws BackOfficeException{
+    public PortalUser(String name, long userid, String email, String password, String salt, String registration, DBKeyInterface organization) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -44,11 +51,12 @@ public class PortalUser extends DataObject implements DataObjectInterface{
         data = new ColumnDataInterface[columns.length];
 
         data[0] = new StringData(name);
-        data[1] = new StringData(email);
-        data[2] = new StringData(password);
-        data[3] = new StringData(salt);
-        data[4] = new DateData(registration);
-        data[5] = new ReferenceData(organization, columns[5].getTableReference());
+        data[1] = new IntData(userid);
+        data[2] = new StringData(email);
+        data[3] = new StringData(password);
+        data[4] = new StringData(salt);
+        data[5] = new DateData(registration);
+        data[6] = new ReferenceData(organization, columns[6].getTableReference());
 
         exists = true;
 
@@ -98,15 +106,29 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
 
 
+    public long getUserId(){
+
+        IntData data = (IntData) this.data[1];
+        return data.value;
+    }
+
+    public void setUserId(long userid){
+
+        IntData data = (IntData) this.data[1];
+        data.value = userid;
+    }
+
+
+
     public String getEmail(){
 
-        StringData data = (StringData) this.data[1];
+        StringData data = (StringData) this.data[2];
         return data.getStringValue();
     }
 
     public void setEmail(String email){
 
-        StringData data = (StringData) this.data[1];
+        StringData data = (StringData) this.data[2];
         data.setStringValue(email);
     }
 
@@ -114,13 +136,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public String getPassword(){
 
-        StringData data = (StringData) this.data[2];
+        StringData data = (StringData) this.data[3];
         return data.getStringValue();
     }
 
     public void setPassword(String password){
 
-        StringData data = (StringData) this.data[2];
+        StringData data = (StringData) this.data[3];
         data.setStringValue(password);
     }
 
@@ -128,13 +150,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public String getSalt(){
 
-        StringData data = (StringData) this.data[3];
+        StringData data = (StringData) this.data[4];
         return data.getStringValue();
     }
 
     public void setSalt(String salt){
 
-        StringData data = (StringData) this.data[3];
+        StringData data = (StringData) this.data[4];
         data.setStringValue(salt);
     }
 
@@ -142,13 +164,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getRegistration()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[4];
+        DateData data = (DateData) this.data[5];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setRegistration(DBTimeStamp registration){
 
-        DateData data = (DateData) this.data[4];
+        DateData data = (DateData) this.data[5];
         data.value = registration.getISODate().toString();
     }
 
@@ -156,19 +178,19 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getOrganizationId(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         return data.value;
     }
 
     public Organization getOrganization(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         return new Organization(new LookupByKey(data.value));
     }
 
     public void setOrganization(DBKeyInterface organization){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         data.value = organization;
     }
 

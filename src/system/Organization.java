@@ -1,9 +1,16 @@
 package system;
 
+import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
+import java.util.List;
+import java.util.Map;
+import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -27,8 +34,7 @@ public class Organization extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-
-    public Organization(String name, String date, String description) throws BackOfficeException{
+    public Organization(String name, long users, String date, String link, String description) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -37,8 +43,10 @@ public class Organization extends DataObject implements DataObjectInterface{
         data = new ColumnDataInterface[columns.length];
 
         data[0] = new StringData(name);
-        data[1] = new DateData(date);
-        data[2] = new TextData(description);
+        data[1] = new IntData(users);
+        data[2] = new DateData(date);
+        data[3] = new TextData(link);
+        data[4] = new TextData(description);
 
         exists = true;
 
@@ -88,38 +96,58 @@ public class Organization extends DataObject implements DataObjectInterface{
 
 
 
+    public long getUsers(){
+
+        IntData data = (IntData) this.data[1];
+        return data.value;
+    }
+
+    public void setUsers(long users){
+
+        IntData data = (IntData) this.data[1];
+        data.value = users;
+    }
+
+
+
     public DBTimeStamp getDate()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[1];
+        DateData data = (DateData) this.data[2];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setDate(DBTimeStamp date){
 
-        DateData data = (DateData) this.data[1];
+        DateData data = (DateData) this.data[2];
         data.value = date.getISODate().toString();
+    }
+
+
+
+    public String getLink(){
+
+        TextData data = (TextData) this.data[3];
+        return data.getStringValue();
+    }
+
+    public void setLink(String link){
+
+        TextData data = (TextData) this.data[3];
+        data.setStringValue(link);
     }
 
 
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[2];
+        TextData data = (TextData) this.data[4];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[2];
+        TextData data = (TextData) this.data[4];
         data.setStringValue(description);
-    }
-
-
-
-    public DBKeyInterface getConfigId(){
-
-        ReferenceData data = (ReferenceData)this.data[3];
-        return data.value;
     }
 
 

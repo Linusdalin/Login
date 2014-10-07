@@ -1,8 +1,16 @@
 package system;
 
+import system.*;
 import dataRepresentation.*;
+import databaseLayer.DBKeyInterface;
+import java.util.List;
+import java.util.Map;
+import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -18,12 +26,14 @@ public class OrganizationTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Organization";
     private static final String DESCRIPTION = "All organizations";
 
-    public enum Columns {Name, Date, Description, Config, }
+    public enum Columns {Name, Users, Date, Link, Description, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Name", DataColumn.noFormatting),
+            new IntColumn("Users", DataColumn.noFormatting),
             new DateColumn("Date", DataColumn.noFormatting),
+            new TextColumn("Link", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
     };
 
@@ -51,16 +61,16 @@ public class OrganizationTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"no org", "2014-01-01", "Generic", "system"},
-          {"itClarifies", "2014-01-01", "Our own group", "system"},
+          {"no org", "0", "2014-01-01", "http://localhost:8080", "Generic", "system"},
+          {"itClarifies", "2", "2014-01-01", "http://localhost:8080", "Our own group", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"demo.org", "2014-01-02", "Test organization in the system", "system"},
-          {"evil.org", "2014-01-03", "Another organization that should not see the documents", "system"},
+          {"demo.org", "3", "2014-01-02", "http://localhost:8080", "Test organization in the system", "system"},
+          {"evil.org", "1", "2014-01-03", "http://localhost:8080", "Another organization that should not see the documents", "system"},
 
 
 
