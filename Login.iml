@@ -12,12 +12,14 @@
       </configuration>
       <facet type="google-app-engine" name="Google App Engine">
         <configuration>
+          <password>df93df92dffedfdddfcbdfdedfdddfcbdfc5dfc7dfc7dfdddfc6df8b</password>
           <files-to-enhance>
             <file path="$MODULE_DIR$/src" />
           </files-to-enhance>
           <persistence-api>JPA</persistence-api>
           <run-enhancer-on-make>true</run-enhancer-on-make>
           <sdk-home-path>$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10</sdk-home-path>
+          <email>linus.dalin@itclarifies.com</email>
         </configuration>
       </facet>
     </facet>

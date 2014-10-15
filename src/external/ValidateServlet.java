@@ -32,7 +32,6 @@ public class ValidateServlet extends GenericServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-       String name;
        String token;
 
         logRequest(req);
