@@ -1,10 +1,8 @@
 package external;
 
-import log.PukkaLogger;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import pukkaBO.exceptions.BackOfficeException;
-import system.PortalSession;
 import system.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,12 +12,15 @@ import java.io.IOException;
 
 public class ValidateServlet extends GenericServlet {
 
-    public static final String DataServletName = "Token";
+    public static final String DataServletName = "Validate";
 
 
     /****************************************************************************'
      *
      *          Validate a session token
+     *
+     *          NOTE:   as the validate request originates from the application,
+     *                  the originating client ip address is passed as a parameter.
      *
      *
      * @param req
@@ -32,7 +33,7 @@ public class ValidateServlet extends GenericServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-       String token;
+       String token, ipAddress;
 
         logRequest(req);
 
@@ -43,8 +44,9 @@ public class ValidateServlet extends GenericServlet {
         try{
 
             token          = getMandatoryString    ("token", req);
+            ipAddress      = getMandatoryString    ("ipAddress", req);
 
-            if(!sessionManagement.validate(token)){
+            if(!sessionManagement.validate(token, ipAddress)){
 
                 returnError("No session", ErrorType.SESSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 return;

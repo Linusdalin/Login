@@ -12,6 +12,8 @@
     <SOURCES>
       <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10/lib/testing/appengine-testing.jar!/com/google/appengine/repackaged/com/google/common/base/super" />
       <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/mockito" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10/lib/impl/appengine-api-labs.jar!/com/google/appengine/labs/repackaged/com/google/common/base/super" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10/lib/impl/appengine-api-labs.jar!/com/google/appengine/labs/repackaged/com/google/common/util/super" />
     </SOURCES>
     <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/mockito" recursive="false" />
     <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/mockito" recursive="false" type="SOURCES" />

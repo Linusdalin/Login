@@ -51,6 +51,17 @@
         <url-pattern>/User</url-pattern>
     </servlet-mapping>
 
+
+    <servlet>
+        <servlet-name>organization</servlet-name>
+        <servlet-class>external.OrganizationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>organization</servlet-name>
+        <url-pattern>/Organization</url-pattern>
+    </servlet-mapping>
+
+
     <servlet>
         <servlet-name>validate</servlet-name>
         <servlet-class>external.ValidateServlet</servlet-class>

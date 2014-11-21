@@ -111,18 +111,12 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
 
                                         new SectionGroup[]{
 
-                                                new SectionGroup("Customers",
-
-                                                     new DataTableInterface[] {
-
-                                                             new OrganizationTable( ),
-                                                     }
-                                                 ),
 
                                                 new SectionGroup("Users",
 
                                                      new DataTableInterface[] {
 
+                                                             new OrganizationTable( ),
                                                             new PortalUserTable( ),
                                                      }
                                                  ),

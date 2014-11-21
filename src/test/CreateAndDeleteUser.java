@@ -11,16 +11,18 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import javax.servlet.http.*;
-
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;
 import system.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /*******************************************************************
  *
@@ -29,7 +31,7 @@ import system.*;
  */
 
 
-public class LoginAndValidate extends ServletTests {
+public class CreateAndDeleteUser extends ServletTests {
 
 
     private static BackOfficeInterface bo;
@@ -78,12 +80,11 @@ public class LoginAndValidate extends ServletTests {
      *
      *          Main test use case
      *
-     *           - Login
-     *           - Verify that the session validates
-     *           - Verifu that the login response returned the correct user
-     *           - Get user details
-     *           - Logout
-     *           - Verify that the session does not validate
+     *           - Create a new User
+     *           - Verify that the user exists
+     *           - Verify that the user can log in
+     *           - Delete the user
+     *           - Verify
      *
      *
      * @throws Exception
@@ -91,164 +92,75 @@ public class LoginAndValidate extends ServletTests {
 
 
     @Test
-    public void testLogin() throws Exception {
+    public void testNewUser() throws Exception {
 
         try{
-
-            Organization demoOrg = new Organization(new LookupItem().addFilter(new ColumnFilter(OrganizationTable.Columns.Name.name(), "demo.org")));
-            assertThat("Pre-requisite demo.org exists ", demoOrg.exists(), is(true) );
-            String loginIP = "127.0.0.1";
-
-
-            MockWriter mockWriter = new MockWriter();
-
-            when(request.getParameter("user")).thenReturn("demo");
-            when(request.getParameter("password")).thenReturn("demodemo");
-            when(request.getHeader("X-FORWARDED-FOR")).thenReturn(loginIP);
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new LoginServlet().doPost(request, response);
-
-            String output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            JSONObject json = new JSONObject(output);
-            String token = json.getString("Login");
-            int id = json.getInt("User");
-
-            PortalUser portalUser = new PortalUser(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), id))
-                    .addFilter(new ReferenceFilter(PortalUserTable.Columns.Organization.name(), demoOrg.getKey())));
-
-            assertThat(token, is("DummySessionToken"));
-            assertTrue(portalUser.exists());
-            assertThat(portalUser.getName(), is("demo"));
-
-            // Check the session
-
-            SessionManagement sessionManagement = new SessionManagement();
-            assertTrue(sessionManagement.validate(token, loginIP));
-
-            // Check Validating the session
-
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("token")).thenReturn(token);
-            when(request.getParameter("ipAddress")).thenReturn(loginIP);
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new ValidateServlet().doGet(request, response);
-
-            output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            json = new JSONObject(output);
-
-            String confirmation = json.getString("Token");
-            int userId = json.getInt("User");
-            String organization = json.getString("Organization");
-
-
-            assertThat(confirmation,     is("OK"));
-            assertThat(userId,           is(1));
-            assertThat(organization,    is("demo.org"));
-
-
-            // Now log out
-
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn(token);
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new LogoutServlet().doPost(request, response);
-
-            output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            json = new JSONObject(output);
-            assertThat(json.getString("status"), is("closed"));
-
-            assertFalse(sessionManagement.validate(token, loginIP));
-
-
-        }catch(NullPointerException e){
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /****************************************************************************************
-     *
-     *          Main test use case
-     *
-     *           - Login
-     *           - Verify that the IP address is stored
-     *           - Verify that the session does not validate with the wrong ip address
-     *
-     *
-     * @throws Exception
-     */
-
-
-    @Test
-    public void testIP() throws Exception {
-
-        try{
+            MockWriter mockWriter;
+            String output;
 
             Organization demoOrg = new Organization(new LookupItem().addFilter(new ColumnFilter(OrganizationTable.Columns.Name.name(), "demo.org")));
             assertThat("Pre-requisite demo.org exists ", demoOrg.exists(), is(true) );
 
-            String loginIP = "127.0.0.1";
-            String accessIP = "127.0.0.2";
+            int existingUsers = new PortalUserTable().getCount();
 
 
-            MockWriter mockWriter = new MockWriter();
+            // Create a new user
 
-            when(request.getParameter("user")).thenReturn("demo");
-            when(request.getParameter("password")).thenReturn("demodemo");
-            when(request.getHeader("X-FORWARDED-FOR")).thenReturn(loginIP);
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("user")).thenReturn("Kalle");
+            when(request.getParameter("password")).thenReturn("secretpassword");
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new UserServlet().doPost(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            int userRecount = new PortalUserTable().getCount();
+
+            assertThat("There is a new user created.", userRecount, is(existingUsers + 1));
+
+
+            // Now try to login
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("user")).thenReturn("Kalle");
+            when(request.getParameter("password")).thenReturn("secretpassword");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new LoginServlet().doPost(request, response);
 
-            String output = mockWriter.getOutput();
+            output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             JSONObject json = new JSONObject(output);
             String token = json.getString("Login");
-            int id = json.getInt("User");
+            int idForCreatedUser = json.getInt("User");
 
-            PortalUser portalUser = new PortalUser(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), id))
-                    .addFilter(new ReferenceFilter(PortalUserTable.Columns.Organization.name(), demoOrg.getKey())));
 
-            assertTrue(portalUser.exists());
-            assertThat(portalUser.getName(), is("demo"));
-
-            // Check the session
-
-            SessionManagement sessionManagement = new SessionManagement();
-            assertTrue(sessionManagement.validate(token, loginIP));
-
-            // Check Validating the session
+            // Now we delete the user again
 
             mockWriter = new MockWriter();
 
-            when(request.getParameter("token")).thenReturn(token);
-            when(request.getParameter("ipAddress")).thenReturn(accessIP);
-
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("user")).thenReturn("" + idForCreatedUser);
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-            new ValidateServlet().doGet(request, response);
+            new UserServlet().doDelete(request, response);
 
             output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             json = new JSONObject(output);
+            assertThat(json.getString("User"), is("DELETED"));
 
-            assertError(json, GenericServlet.ErrorType.SESSION);
+            userRecount = new PortalUserTable().getCount();
+
+            assertThat("There is now as many users as when we begun.", userRecount, is(existingUsers));
 
 
 
@@ -258,8 +170,6 @@ public class LoginAndValidate extends ServletTests {
             assertTrue(false);
         }
     }
-
-
 
 
     @Test

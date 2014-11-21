@@ -45,10 +45,8 @@ public class UserServlet extends GenericServlet {
         try{
             logRequest(req);
 
-            String username         = getMandatoryString("username", req);
+            String username         = getMandatoryString("user", req);
             String password         = getMandatoryString("password", req);
-
-            logRequest(req);
 
             if(!validateSession(req, resp))
                 return;
@@ -60,7 +58,7 @@ public class UserServlet extends GenericServlet {
 
             if(user.exists()){
 
-                returnError("User Already Exists", HttpServletResponse.SC_OK, resp);
+                returnError("User Already Exists",  ErrorType.NAMING, HttpServletResponse.SC_OK, resp);
                 resp.flushBuffer();
                 return;
 
@@ -87,13 +85,16 @@ public class UserServlet extends GenericServlet {
 
             }
 
-            long existingUsersForOrganization = org.getUsers();
+            long existingUsers = new PortalUserTable().getCount();
 
-            PortalUser newUser = new PortalUser(username, (existingUsersForOrganization + 1), "", encodedPwd, encodedSalt, registrationDate.getISODate(), org);
+            //    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
+
+
+            PortalUser newUser = new PortalUser(username, (existingUsers + 1), encodedPwd, encodedSalt, registrationDate.getISODate(), org, true);
             newUser.store();
 
-            org.setUsers(existingUsersForOrganization + 1);
-            org.update();
+            //org.setUsers(existingUsers + 1);
+            //org.update();
 
 
             PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new user " + newUser.getName() + " with id " + newUser.getKey());
@@ -108,15 +109,14 @@ public class UserServlet extends GenericServlet {
 
         }catch(BackOfficeException e){
 
+            e.printStackTrace(System.out);
             returnError("Error creating user: " + e.narration, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
-            e.logError( "Error in Post in Portal User");
 
         } catch ( Exception e) {
 
+            e.printStackTrace(System.out);
             returnError("Error creating user: " + e.getMessage(), ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
             resp.flushBuffer();
-
-            PukkaLogger.log( e );
 
         }
      }
@@ -140,9 +140,23 @@ public class UserServlet extends GenericServlet {
         try{
             logRequest(req);
 
+            long userId         = getMandatorylong("user", req);
+
+            if(!validateSession(req, resp))
+                return;
+
+
             Formatter formatter = getFormatFromParameters(req);
 
-            PortalUser user = sessionManagement.getUser();        // TODO: Add test for the case that the user already is deleted here
+            PortalUser parent = sessionManagement.getUser();        // TODO: Add test for the case that the user already is deleted here
+
+            PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), userId)));
+
+            if(!user.exists()){
+
+                returnError("Error deleting user: User id "+ userId + "does not exist", ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
+                return;
+            }
 
             user.delete();                              // TODO: Close the ongoing session. (Store token in session?)
 

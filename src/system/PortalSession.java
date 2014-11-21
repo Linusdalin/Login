@@ -33,13 +33,13 @@ public class PortalSession extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public PortalSession(DataObjectInterface user, String token, String start, String latest, DataObjectInterface status) throws BackOfficeException{
+    public PortalSession(DataObjectInterface user, String token, String ip, String start, String latest, DataObjectInterface status) throws BackOfficeException{
 
-        this(user.getKey(), token, start, latest, status.getKey());
+        this(user.getKey(), token, ip, start, latest, status.getKey());
     }
 
 
-    public PortalSession(DBKeyInterface user, String token, String start, String latest, DBKeyInterface status) throws BackOfficeException{
+    public PortalSession(DBKeyInterface user, String token, String ip, String start, String latest, DBKeyInterface status) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -49,9 +49,10 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
         data[0] = new ReferenceData(user, columns[0].getTableReference());
         data[1] = new StringData(token);
-        data[2] = new TimeStampData(start);
-        data[3] = new TimeStampData(latest);
-        data[4] = new ReferenceData(status, columns[4].getTableReference());
+        data[2] = new StringData(ip);
+        data[3] = new TimeStampData(start);
+        data[4] = new TimeStampData(latest);
+        data[5] = new ReferenceData(status, columns[5].getTableReference());
 
         exists = true;
 
@@ -121,15 +122,29 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
 
 
+    public String getIP(){
+
+        StringData data = (StringData) this.data[2];
+        return data.getStringValue();
+    }
+
+    public void setIP(String ip){
+
+        StringData data = (StringData) this.data[2];
+        data.setStringValue(ip);
+    }
+
+
+
     public DBTimeStamp getStart()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[2];
+        TimeStampData data = (TimeStampData) this.data[3];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setStart(DBTimeStamp start){
 
-        TimeStampData data = (TimeStampData) this.data[2];
+        TimeStampData data = (TimeStampData) this.data[3];
         data.value = start.getSQLTime().toString();
     }
 
@@ -137,13 +152,13 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getLatest()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[3];
+        TimeStampData data = (TimeStampData) this.data[4];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setLatest(DBTimeStamp latest){
 
-        TimeStampData data = (TimeStampData) this.data[3];
+        TimeStampData data = (TimeStampData) this.data[4];
         data.value = latest.getSQLTime().toString();
     }
 
@@ -151,19 +166,19 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getStatusId(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return data.value;
     }
 
     public SessionStatus getStatus(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return new SessionStatus(new LookupByKey(data.value));
     }
 
     public void setStatus(DBKeyInterface status){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         data.value = status;
     }
 

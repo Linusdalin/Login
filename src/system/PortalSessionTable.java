@@ -26,12 +26,13 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "PortalSession";
     private static final String DESCRIPTION = "Active and closed sessions for all users";
 
-    public enum Columns {User, Token, Start, Latest, Status, }
+    public enum Columns {User, Token, IP, Start, Latest, Status, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new ReferenceColumn("User", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new StringColumn("Token", DataColumn.noFormatting),
+            new StringColumn("IP", DataColumn.noFormatting),
             new TimeStampColumn("Start", DataColumn.noFormatting),
             new TimeStampColumn("Latest", DataColumn.noFormatting),
             new ReferenceColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
@@ -61,16 +62,16 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"System", "SystemSessionToken", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"System", "SystemSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"demo", "DummySessionToken", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
-          {"admin", "DummyAdminToken", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
-          {"eve", "DummyEveToken", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"demo", "DummySessionToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"admin", "DummyAdminToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"eve", "DummyEveToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
 
 
 
@@ -93,13 +94,15 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
      *
      *          Create a new session given username and password
      *
+     *
      * @param user - the user as entered in the login
+     * @param ipAddress
      * @return - a new session
      * @throws BackOfficeException
      */
 
 
-    public PortalSession createNewSession(PortalUser user) throws BackOfficeException {
+    public PortalSession createNewSession(PortalUser user, String ipAddress) throws BackOfficeException {
 
 
         SessionToken token = new SessionToken();
@@ -107,7 +110,7 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
         SessionStatus status;
 
         status = SessionStatus.getopen();
-        PortalSession session = new PortalSession(user, token.toString(), startTime.getSQLTime().toString(), startTime.getSQLTime().toString(), status);
+        PortalSession session = new PortalSession(user, token.toString(), ipAddress, startTime.getSQLTime().toString(), startTime.getSQLTime().toString(), status);
         session.store();
         return session;
 

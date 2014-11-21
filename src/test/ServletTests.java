@@ -2,6 +2,7 @@ package test;
 
 import external.GenericServlet;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.hamcrest.CoreMatchers;
 
@@ -43,7 +44,18 @@ public class ServletTests {
 
     protected void assertError(JSONObject json, GenericServlet.ErrorType session) {
 
-        JSONArray errorData = json.getJSONArray("error");
+        JSONArray errorData = null;
+
+        try{
+             errorData = json.getJSONArray("error");
+
+        }catch(JSONException e){
+
+            assertThat("Expecting to find an error", json.toString(), is("error"));
+
+        }
+
+
         JSONObject first = (JSONObject)errorData.get(0);
         assertThat(first.getString("type"), is(session.name()));
 

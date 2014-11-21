@@ -24,8 +24,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     private static PortalUser SystemUser = null;  
     private static PortalUser ExternalUser = null;  
-    private static PortalUser Linus = null;  
-    private static PortalUser New = null;  
+    private static PortalUser Super = null;  
 
 
     private static final DataTableInterface TABLE = (DataTableInterface) new PortalUserTable();
@@ -36,13 +35,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public PortalUser(String name, long userid, String email, String password, String salt, String registration, DataObjectInterface organization) throws BackOfficeException{
+    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
 
-        this(name, userid, email, password, salt, registration, organization.getKey());
+        this(name, userid, password, salt, registration, organization.getKey(), active);
     }
 
 
-    public PortalUser(String name, long userid, String email, String password, String salt, String registration, DBKeyInterface organization) throws BackOfficeException{
+    public PortalUser(String name, long userid, String password, String salt, String registration, DBKeyInterface organization, boolean active) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -52,11 +51,11 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
         data[0] = new StringData(name);
         data[1] = new IntData(userid);
-        data[2] = new StringData(email);
-        data[3] = new StringData(password);
-        data[4] = new StringData(salt);
-        data[5] = new DateData(registration);
-        data[6] = new ReferenceData(organization, columns[6].getTableReference());
+        data[2] = new StringData(password);
+        data[3] = new StringData(salt);
+        data[4] = new DateData(registration);
+        data[5] = new ReferenceData(organization, columns[5].getTableReference());
+        data[6] = new BoolData(active);
 
         exists = true;
 
@@ -120,29 +119,15 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
 
 
-    public String getEmail(){
-
-        StringData data = (StringData) this.data[2];
-        return data.getStringValue();
-    }
-
-    public void setEmail(String email){
-
-        StringData data = (StringData) this.data[2];
-        data.setStringValue(email);
-    }
-
-
-
     public String getPassword(){
 
-        StringData data = (StringData) this.data[3];
+        StringData data = (StringData) this.data[2];
         return data.getStringValue();
     }
 
     public void setPassword(String password){
 
-        StringData data = (StringData) this.data[3];
+        StringData data = (StringData) this.data[2];
         data.setStringValue(password);
     }
 
@@ -150,13 +135,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public String getSalt(){
 
-        StringData data = (StringData) this.data[4];
+        StringData data = (StringData) this.data[3];
         return data.getStringValue();
     }
 
     public void setSalt(String salt){
 
-        StringData data = (StringData) this.data[4];
+        StringData data = (StringData) this.data[3];
         data.setStringValue(salt);
     }
 
@@ -164,13 +149,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getRegistration()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[5];
+        DateData data = (DateData) this.data[4];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setRegistration(DBTimeStamp registration){
 
-        DateData data = (DateData) this.data[5];
+        DateData data = (DateData) this.data[4];
         data.value = registration.getISODate().toString();
     }
 
@@ -178,20 +163,34 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getOrganizationId(){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[5];
         return data.value;
     }
 
     public Organization getOrganization(){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[5];
         return new Organization(new LookupByKey(data.value));
     }
 
     public void setOrganization(DBKeyInterface organization){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[5];
         data.value = organization;
+    }
+
+
+
+    public boolean getActive(){
+
+        BoolData data = (BoolData) this.data[6];
+        return data.value;
+    }
+
+    public void setActive(boolean active){
+
+        BoolData data = (BoolData) this.data[6];
+        data.value = active;
     }
 
 
@@ -216,24 +215,14 @@ public class PortalUser extends DataObject implements DataObjectInterface{
        return PortalUser.ExternalUser;
      }
 
-    public static PortalUser getLinus( ) throws BackOfficeException{
+    public static PortalUser getSuper( ) throws BackOfficeException{
 
-       if(PortalUser.Linus == null)
-          PortalUser.Linus = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "Linus")));
-       if(!PortalUser.Linus.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Linus is missing (db update required?)");
+       if(PortalUser.Super == null)
+          PortalUser.Super = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "Super")));
+       if(!PortalUser.Super.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Super is missing (db update required?)");
 
-       return PortalUser.Linus;
-     }
-
-    public static PortalUser getNew( ) throws BackOfficeException{
-
-       if(PortalUser.New == null)
-          PortalUser.New = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "New")));
-       if(!PortalUser.New.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant New is missing (db update required?)");
-
-       return PortalUser.New;
+       return PortalUser.Super;
      }
 
 
@@ -243,8 +232,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
         PortalUser.SystemUser = null;
         PortalUser.ExternalUser = null;
-        PortalUser.Linus = null;
-        PortalUser.New = null;
+        PortalUser.Super = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

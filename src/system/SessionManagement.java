@@ -10,11 +10,7 @@ import java.util.Map;
 
 /**
  *
- * Created with IntelliJ IDEA.
- * User: Linus
- * Date: 2014-05-26
- * Time: 16:19
- * To change this template use File | Settings | File Templates.
+ *          Session manager
  *
  *
  *      //TODO: findExisting and create new uses similar validation of user/pwd. Refactor this into one
@@ -27,7 +23,7 @@ public class SessionManagement {
     private PortalUser sessionUser = null;
     private PortalUser system = null;
 
-    private Map<String, String > orgAccess = new HashMap<String, String>();
+    private Map<String, String> orgAccess = new HashMap<String, String>();
 
     public String close(String sessionToken) throws BackOfficeException {
 
@@ -61,14 +57,16 @@ public class SessionManagement {
      *
      *              Validate user credentials and create a new session
      *
-     * @param name
-     * @param password
-     * @return
+     *
+     * @param name      - the user name
+     * @param password  - user password
+     * @param ipAddress - the ip address for the session
+     * @return - the session
      * @throws BackOfficeException
      */
 
 
-    public PortalSession createSession(String name, String password) throws BackOfficeException{
+    public PortalSession createSession(String name, String password, String ipAddress) throws BackOfficeException{
 
         PortalSession emptySession = new PortalSession();
         PasswordManager pwdManager = new PasswordManager();
@@ -92,9 +90,7 @@ public class SessionManagement {
 
             // Create a new session
 
-            PortalSession session = new PortalSessionTable().createNewSession(user);
-
-            return session;
+            return new PortalSessionTable().createNewSession(user, ipAddress);
 
         } catch (Exception e) {
 
@@ -113,7 +109,9 @@ public class SessionManagement {
      *      The token should uniquely identify the user
      *
      *
+     *
      * @param sessionToken - token from the web service call
+     * @param accessIP
      * @return - true if the session is active
      *
      *
@@ -121,15 +119,28 @@ public class SessionManagement {
      */
 
 
-    public boolean validate(String sessionToken) throws BackOfficeException {
+    public boolean validate(String sessionToken, String accessIP) throws BackOfficeException {
 
-        // Lookup the session
+        // Lookup the last session
 
        PortalSession session = new PortalSession(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken)));
+                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
+                    .addSorting(new Sorting(PortalSessionTable.Columns.Start.name(), Ordering.LAST)));
+
 
        if(!session.exists())
             return false;
+
+        // Check the IP address. It is not allowed to access a session from another IP address.
+        // This will prevent malicious session hijacking
+
+        if(!session.getIP().equals(accessIP)){
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Access attempt on "+ session.getUser().getName()+" account from another IP address. (Login: " + session.getIP() + " access: " + accessIP + ")");
+            return false;
+
+        }
+
 
         // Check if the session is open and not expired
 
@@ -160,15 +171,18 @@ public class SessionManagement {
      * @return - true if the session is expired
      *
      *      NOTE: If we fail to lookup a session, we close it.
+     *      NOTE: The start time is used for long live tokens
      */
 
     private boolean expired(PortalSession session) {
 
         try {
-            DBTimeStamp startTime = session.getLatest();
-            DBTimeStamp endTime = startTime.addMinutes(SESSION_TIME);
+            DBTimeStamp latestUpdate = session.getLatest();
+            DBTimeStamp startTime = session.getStart();
+            DBTimeStamp endTime = latestUpdate.addMinutes(SESSION_TIME);
+            DBTimeStamp now = new DBTimeStamp();
 
-            return endTime.isBefore(new DBTimeStamp());
+            return endTime.isBefore(now) && startTime.isBefore(now);
 
         } catch (BackOfficeException e) {
             e.logError("Error looking for time for session. Fail = expire");
@@ -185,7 +199,7 @@ public class SessionManagement {
      *          This will ensure security in all the actions
      *
      * @param sessionToken - token from the web service call.
-     * @return
+     * @return - the user that the session was created for
      * @throws BackOfficeException
      */
 
@@ -213,7 +227,7 @@ public class SessionManagement {
 
     /********************************************************************************'
      *
-     *          Find Empty Session retrieves a session if it exists
+     *          Find Existing Session retrieves a session if it exists
      *
      *          Exists means that it is open and still active.
      *
@@ -221,7 +235,8 @@ public class SessionManagement {
      *
      * @param name - user
      * @param password - password
-     * @return
+     *
+     * @return - the session
      * @throws BackOfficeException
      */
 
@@ -233,15 +248,20 @@ public class SessionManagement {
 
         try {
 
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Looking for existing session");
+
 
             // Lookup the user
 
             PortalUser user = new PortalUser(new LookupItem()
                             .addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), name)));
 
-            if(!user.exists())
-               return emptySession;
+            if(!user.exists()){
 
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "No such user " + name);
+                return emptySession;
+
+            }
             // Validate the password
 
             if(!pwdManager.authenticate(password, user.getPassword().getBytes("ISO-8859-1"), user.getSalt().getBytes("ISO-8859-1")))
@@ -253,11 +273,23 @@ public class SessionManagement {
                         .addFilter(new ReferenceFilter(PortalSessionTable.Columns.User.name(), user.getKey())));
 
 
-            if(!session.exists())
-                return emptySession;
+            if(!session.exists()){
 
-            if(session.getStatusId().equals(SessionStatus.getopen().getKey()) && !expired(session))
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "No session exists");
+                return emptySession;
+            }
+
+            if(session.getStatusId().equals(SessionStatus.getopen().getKey()) && !expired(session)){
+
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Returning session");
                 return session;
+            }
+
+            if(expired(session))
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Session already expired");
+
+            if(session.getStatusId().equals(SessionStatus.getopen().getKey()))
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Session not open.. (" + session.getStatus().getName() + ")" );
 
 
             return emptySession;
