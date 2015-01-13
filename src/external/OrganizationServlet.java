@@ -66,8 +66,21 @@ public class OrganizationServlet extends GenericServlet {
             // Create the organization
 
             organization = new Organization(organizationName, 0, registrationDate.getISODate(), server, organizationDescription);
-
             organization.store();
+
+            // Create the system user and long life session to access this from other applications
+
+            String systemUserName = organizationName + "System";
+            PortalUser systemUser = new PortalUser(systemUserName, 0, "xxx", "yyy", registrationDate.getISODate(),  organization.getKey(), false);
+            systemUser.store();
+
+            SessionToken token = new SessionToken();
+
+            DBTimeStamp start = new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2020-05-01 00:00:00");
+            DBTimeStamp latest = new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2015-05-01 00:00:00");
+
+            PortalSession systemSession = new PortalSession(systemUser, token.toString(), "127.0.0.1", start.getSQLTime().toString(), latest.getSQLTime().toString(), SessionStatus.getopen());
+            systemSession.store();
 
 
             PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new organization " + organization.getName() + " on server " + server + " with id " + organization.getKey());
@@ -75,7 +88,8 @@ public class OrganizationServlet extends GenericServlet {
             Formatter formatter = getFormatFromParameters(req);
 
             JSONObject response = new JSONObject()
-                    .put(DataServletName, organization.getKey().toString());
+                    .put(DataServletName,   organization.getKey().toString())
+                    .put("token", token.toString());
 
             sendJSONResponse(response, formatter, resp);
 

@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -35,7 +36,7 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
             new StringColumn("IP", DataColumn.noFormatting),
             new TimeStampColumn("Start", DataColumn.noFormatting),
             new TimeStampColumn("Latest", DataColumn.noFormatting),
-            new ReferenceColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
+            new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
     };
 
     private static final PortalSession associatedObject = new PortalSession();
@@ -62,13 +63,15 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"System", "SystemSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"ItClarifiesSystem", "ItClarifiesSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
+          {"DemoSystem", "SystemSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
+          {"EvilSystem", "EvilSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
           {"demo", "DummySessionToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
           {"admin", "DummyAdminToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
           {"eve", "DummyEveToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},

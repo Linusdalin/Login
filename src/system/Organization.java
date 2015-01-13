@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -30,25 +31,32 @@ public class Organization extends DataObject implements DataObjectInterface{
 
     public Organization(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public Organization(String name, long users, String date, String link, String description) throws BackOfficeException{
+    public Organization(String name, long users, String date, String link, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(users);
-        data[2] = new DateData(date);
-        data[3] = new TextData(link);
-        data[4] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new IntData(users);
+           data[2] = new DateData(date);
+           data[3] = new StringData(link);
+           data[4] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -126,13 +134,13 @@ public class Organization extends DataObject implements DataObjectInterface{
 
     public String getLink(){
 
-        TextData data = (TextData) this.data[3];
+        StringData data = (StringData) this.data[3];
         return data.getStringValue();
     }
 
     public void setLink(String link){
 
-        TextData data = (TextData) this.data[3];
+        StringData data = (StringData) this.data[3];
         data.setStringValue(link);
     }
 
@@ -160,7 +168,7 @@ public class Organization extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant none is missing (db update required?)");
 
        return Organization.none;
-     }
+    }
 
     public static Organization getitClarifies( ) throws BackOfficeException{
 
@@ -170,7 +178,7 @@ public class Organization extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant itClarifies is missing (db update required?)");
 
        return Organization.itClarifies;
-     }
+    }
 
 
     public static void clearConstantCache(){

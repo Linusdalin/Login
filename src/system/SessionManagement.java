@@ -2,6 +2,7 @@ package system;
 
 import dataRepresentation.DBTimeStamp;
 import log.PukkaLogger;
+import pukkaBO.acs.IPAccessList;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 
@@ -14,6 +15,7 @@ import java.util.Map;
  *
  *
  *      //TODO: findExisting and create new uses similar validation of user/pwd. Refactor this into one
+ *      //TODO: This should be the same between the Main app and this
  *
  */
 
@@ -22,6 +24,48 @@ public class SessionManagement {
     private static final int SESSION_TIME = 180;
     private PortalUser sessionUser = null;
     private PortalUser system = null;
+
+    private static IPAccessList internalIPAccess = null;
+
+    public SessionManagement(){
+
+        if(internalIPAccess == null){
+            internalIPAccess = new IPAccessList();
+            internalIPAccess.allow("0.*.*.*");
+
+            internalIPAccess.allow("8.34.208.*");
+            internalIPAccess.allow("8.35.192.*");
+            internalIPAccess.allow("8.35.200.*");
+            internalIPAccess.allow("23.236.48.*");
+            internalIPAccess.allow("23.251.128.*");
+            internalIPAccess.allow("107.167.160.*");
+            internalIPAccess.allow("107.178.192.*");
+            internalIPAccess.allow("107.178.195.*");
+            internalIPAccess.allow("107.178.200.*");
+            internalIPAccess.allow("108.170.192.*");
+            internalIPAccess.allow("108.170.208.*");
+            internalIPAccess.allow("108.170.216.*");
+            internalIPAccess.allow("108.170.220.*");
+            internalIPAccess.allow("108.170.222.*");
+            internalIPAccess.allow("108.59.80.*");
+            internalIPAccess.allow("130.211.4*");
+            internalIPAccess.allow("146.148.16.*");
+            internalIPAccess.allow("146.148.2.*");
+            internalIPAccess.allow("146.148.32.*");
+            internalIPAccess.allow("146.148.4.*");
+            internalIPAccess.allow("146.148.64.*");
+            internalIPAccess.allow("146.148.8.*");
+            internalIPAccess.allow("162.216.148.*");
+            internalIPAccess.allow("162.222.176.*");
+            internalIPAccess.allow("173.255.112.*");
+            internalIPAccess.allow("192.158.28.*");
+            internalIPAccess.allow("199.192.112.*");
+            internalIPAccess.allow("199.223.232.*");
+            internalIPAccess.allow("199.223.236.*");
+        }
+    }
+
+
 
     private Map<String, String> orgAccess = new HashMap<String, String>();
 
@@ -38,14 +82,14 @@ public class SessionManagement {
 
                 status = "unknown session"; //TODO: Log this.
 
-            }else if(session.getStatusId().equals(SessionStatus.gettimeout())){
+            }else if(session.getStatus().equals(SessionStatus.gettimeout())){
 
                 status = "implicit";
             }else{
 
                 // Close session
 
-                session.setStatus(SessionStatus.getclosed().getKey());
+                session.setStatus(SessionStatus.getclosed());
                 session.update();
 
             }
@@ -134,7 +178,7 @@ public class SessionManagement {
         // Check the IP address. It is not allowed to access a session from another IP address.
         // This will prevent malicious session hijacking
 
-        if(!session.getIP().equals(accessIP)){
+        if(!internal(accessIP) && !session.getIP().equals(accessIP)){
 
             PukkaLogger.log(PukkaLogger.Level.WARNING, "Access attempt on "+ session.getUser().getName()+" account from another IP address. (Login: " + session.getIP() + " access: " + accessIP + ")");
             return false;
@@ -144,7 +188,7 @@ public class SessionManagement {
 
         // Check if the session is open and not expired
 
-       boolean isActive =(session.getStatusId().equals(SessionStatus.getopen().getKey()) && !expired(session));
+       boolean isActive =(session.getStatus().equals(SessionStatus.getopen()) && !expired(session));
 
        if(isActive){
 
@@ -279,7 +323,7 @@ public class SessionManagement {
                 return emptySession;
             }
 
-            if(session.getStatusId().equals(SessionStatus.getopen().getKey()) && !expired(session)){
+            if(session.getStatus().equals(SessionStatus.getopen()) && !expired(session)){
 
                 PukkaLogger.log(PukkaLogger.Level.DEBUG, "Returning session");
                 return session;
@@ -288,7 +332,7 @@ public class SessionManagement {
             if(expired(session))
                 PukkaLogger.log(PukkaLogger.Level.DEBUG, "Session already expired");
 
-            if(session.getStatusId().equals(SessionStatus.getopen().getKey()))
+            if(session.getStatus().equals(SessionStatus.getopen().getKey()))
                 PukkaLogger.log(PukkaLogger.Level.DEBUG, "Session not open.. (" + session.getStatus().getName() + ")" );
 
 
@@ -302,6 +346,17 @@ public class SessionManagement {
 
         }
 
+
+    }
+
+    private boolean internal(String ip) {
+
+
+
+        boolean isInternal = internalIPAccess.check(ip);
+        System.out.println("Check internal: " + isInternal + " for ip: " + ip);
+        System.out.println("List of internal: " + internalIPAccess.toString());
+        return isInternal;
 
     }
 

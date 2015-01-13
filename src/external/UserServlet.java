@@ -1,6 +1,8 @@
 package external;
 
 import dataRepresentation.DBTimeStamp;
+import databaseLayer.DBKeyInterface;
+import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
@@ -45,6 +47,7 @@ public class UserServlet extends GenericServlet {
         try{
             logRequest(req);
 
+            long userId             = getOptionalLong("id", req, -1);
             String username         = getMandatoryString("user", req);
             String password         = getMandatoryString("password", req);
 
@@ -54,57 +57,116 @@ public class UserServlet extends GenericServlet {
 
             PortalUser parent = sessionManagement.getUser();
 
-            PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), username)));
+            if(userId == -1){
 
-            if(user.exists()){
+                // Create a new user
+                PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), username)));
 
-                returnError("User Already Exists",  ErrorType.NAMING, HttpServletResponse.SC_OK, resp);
-                resp.flushBuffer();
-                return;
+                if(user.exists()){
+
+                    returnError("User Already Exists",  ErrorType.NAMING, HttpServletResponse.SC_OK, resp);
+                    resp.flushBuffer();
+                    return;
+
+                }
+
+                DBTimeStamp registrationDate = new DBTimeStamp();   // Set now as a registration date
+                Organization org = parent.getOrganization();
+
+                // Create the user
+
+                PasswordManager pwdManager = new PasswordManager();
+                byte[] salt = new byte[0];
+                String encodedPwd;
+                String encodedSalt;
+                try {
+                    salt = pwdManager.generateSalt();
+                    encodedPwd = new String(pwdManager.getEncryptedPassword(password, salt), "ISO-8859-1");
+                    encodedSalt = new String( salt, "ISO-8859-1");
+
+                } catch (Exception e) {
+
+                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Error creating password " + e.getMessage());
+                    return;
+
+                }
+
+                long existingUsers = new PortalUserTable().getCount();
+
+                //    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
+
+
+                PortalUser newUser = new PortalUser(username, (existingUsers + 1), encodedPwd, encodedSalt, registrationDate.getISODate(), org, true);
+                newUser.store();
+
+                //org.setUsers(existingUsers + 1);
+                //org.update();
+
+
+                PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new user " + newUser.getName() + " with id " + newUser.getKey());
+
+                Formatter formatter = getFormatFromParameters(req);
+
+                JSONObject response = new JSONObject()
+                        .put("user", newUser.getUserId());
+
+                sendJSONResponse(response, formatter, resp);
+
+
+            }
+            else{
+
+                // There is a key. Lets update the existing user
+
+
+                PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), userId)));
+
+                if(!user.exists()){
+
+                    returnError("No User with id= "+ userId,  ErrorType.NAMING, HttpServletResponse.SC_OK, resp);
+                    resp.flushBuffer();
+                    return;
+
+                }
+
+                // Update password
+
+                PasswordManager pwdManager = new PasswordManager();
+                byte[] salt = new byte[0];
+                String encodedPwd;
+                String encodedSalt;
+                try {
+                    salt = pwdManager.generateSalt();
+                    encodedPwd = new String(pwdManager.getEncryptedPassword(password, salt), "ISO-8859-1");
+                    encodedSalt = new String( salt, "ISO-8859-1");
+
+                } catch (Exception e) {
+
+                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Error creating password " + e.getMessage());
+                    return;
+
+                }
+
+                user.setName(username);
+                user.setPassword(encodedPwd);
+                user.setSalt(encodedSalt);
+
+                user.update();
+
+
+                PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Updated user " + user.getName() + " with id " + user.getKey());
+
+                Formatter formatter = getFormatFromParameters(req);
+
+                JSONObject response = new JSONObject()
+                        .put("user", user.getUserId());
+
+                sendJSONResponse(response, formatter, resp);
+
+
 
             }
 
-            DBTimeStamp registrationDate = new DBTimeStamp();   // Set now as a registration date
-            Organization org = parent.getOrganization();
-
-            // Create the user
-
-            PasswordManager pwdManager = new PasswordManager();
-            byte[] salt = new byte[0];
-            String encodedPwd;
-            String encodedSalt;
-            try {
-                salt = pwdManager.generateSalt();
-                encodedPwd = new String(pwdManager.getEncryptedPassword(password, salt), "ISO-8859-1");
-                encodedSalt = new String( salt, "ISO-8859-1");
-
-            } catch (Exception e) {
-
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "Error creating password " + e.getMessage());
-                return;
-
-            }
-
-            long existingUsers = new PortalUserTable().getCount();
-
-            //    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
-
-
-            PortalUser newUser = new PortalUser(username, (existingUsers + 1), encodedPwd, encodedSalt, registrationDate.getISODate(), org, true);
-            newUser.store();
-
-            //org.setUsers(existingUsers + 1);
-            //org.update();
-
-
-            PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new user " + newUser.getName() + " with id " + newUser.getKey());
-
-            Formatter formatter = getFormatFromParameters(req);
-
-            JSONObject response = new JSONObject()
-                    .put("user", newUser.getUserId());
-
-            sendJSONResponse(response, formatter, resp);
 
 
         }catch(BackOfficeException e){

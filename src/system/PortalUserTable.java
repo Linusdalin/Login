@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -63,8 +64,7 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"System", "0", "not used", "salt", "2014-01-01", "itClarifies", "true", "system"},
-          {"External", "0", "not used", "salt", "2014-01-01", "itClarifies", "true", "system"},
+          {"ItClarifiesSystem", "0", "not used", "salt", "2014-01-01", "itClarifies", "true", "system"},
           {"Super", "1", "abc123", "salt", "2014-01-01", "itClarifies", "true", "system"},
 
 
@@ -72,9 +72,16 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
+          {"DemoSystem", "0", "not used", "salt", "2014-01-01", "demo.org", "true", "system"},
           {"demo", "2", "demodemo", "salt", "2014-01-01", "demo.org", "true", "system"},
           {"admin", "3", "adminadmin", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"eve", "4", "eve", "salt", "2014-01-01", "evil.org", "true", "system"},
+          {"linus", "4", "linus", "salt", "2014-01-01", "demo.org", "true", "system"},
+          {"ulf", "5", "ulf", "salt", "2014-01-01", "demo.org", "true", "system"},
+          {"tolga", "6", "tolga", "salt", "2014-01-01", "demo.org", "true", "system"},
+          {"henrik", "7", "henrik", "salt", "2014-01-01", "demo.org", "true", "system"},
+          {"EvilSystem", "0", "not used", "salt", "2014-01-01", "evil.org", "true", "system"},
+          {"eve", "8", "eveeve", "salt", "2014-01-01", "evil.org", "true", "system"},
+          {"local", "9", "locallocal", "salt", "2014-01-01", "local.org", "true", "system"},
 
 
 

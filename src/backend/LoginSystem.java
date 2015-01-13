@@ -6,6 +6,8 @@ import log.PukkaLogger;
 import pukkaAnalysis.DashboardPage;
 import pukkaBO.Charts.ChartInterface;
 import pukkaBO.GenericPage.PageInterface;
+import pukkaBO.acs.ACS_User;
+import pukkaBO.acs.ACS_UserTable;
 import pukkaBO.acs.SSOLoginInterface;
 import pukkaBO.backOffice.*;
 import pukkaBO.condition.LookupList;
@@ -63,6 +65,15 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
                 "Welcome to itClarifies backoffice ",               // Welcome text
                 new TableRendererStarlightStatic(this)              // Table render logic to render all the tables
         );
+
+                // Access rights
+
+        whiteList.allow("217.13.245.*");        // Office IP
+        whiteList.allow("127.0.0.1");         // Local host for testing
+        whiteList.allow("213.89.59.*");       // Linus Home
+        whiteList.allow("213.185.250.*");       // Ulf Home
+
+
 
         // Set the menu structure
 
@@ -256,8 +267,28 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
                 user.setSalt(new String(salt, "ISO-8859-1"));
                 user.update();
 
+            }
+
+                                // Do the same thing for the ACS_Admin
+
+            ACS_UserTable allAdminUsers = new ACS_UserTable(new LookupList());
+
+            for(DataObjectInterface object : allAdminUsers.getValues()){
+
+                ACS_User user = (ACS_User)object;
+
+                byte[] salt = pwdManager.generateSalt();
+                byte[] encodedPassword = pwdManager.getEncryptedPassword(user.getPassword(), salt);
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Encoding password " + user.getPassword() + " for user " + user.getName() + " to " + Arrays.toString(encodedPassword));
+
+
+                user.setPassword(new String(encodedPassword, "ISO-8859-1"));
+                user.setSalt(new String(salt, "ISO-8859-1"));
+                user.update();
 
             }
+
 
         } catch (Exception e) {
 

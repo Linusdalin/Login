@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -33,7 +34,7 @@ public class OrganizationTable extends DataTable implements DataTableInterface{
             new StringColumn("Name", DataColumn.noFormatting),
             new IntColumn("Users", DataColumn.noFormatting),
             new DateColumn("Date", DataColumn.noFormatting),
-            new TextColumn("Link", DataColumn.noFormatting),
+            new StringColumn("Link", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
     };
 
@@ -69,7 +70,8 @@ public class OrganizationTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"demo.org", "3", "2014-01-02", "http://localhost:8080", "Test organization in the system", "system"},
+          {"demo.org", "3", "2014-01-02", "https://itclarifiesapistage.appspot.com", "Test organization in the system", "system"},
+          {"local.org", "1", "2014-01-02", "http://localhost:8080", "Test organization in the system", "system"},
           {"evil.org", "1", "2014-01-03", "http://localhost:8080", "Another organization that should not see the documents", "system"},
 
 

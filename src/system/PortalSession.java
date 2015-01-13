@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -29,32 +30,39 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
     public PortalSession(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
     public PortalSession(DataObjectInterface user, String token, String ip, String start, String latest, DataObjectInterface status) throws BackOfficeException{
 
-        this(user.getKey(), token, ip, start, latest, status.getKey());
+        this(user.getKey(), token, ip, start, latest, status);
     }
 
 
-    public PortalSession(DBKeyInterface user, String token, String ip, String start, String latest, DBKeyInterface status) throws BackOfficeException{
+    public PortalSession(DBKeyInterface user, String token, String ip, String start, String latest, DataObjectInterface status){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new ReferenceData(user, columns[0].getTableReference());
-        data[1] = new StringData(token);
-        data[2] = new StringData(ip);
-        data[3] = new TimeStampData(start);
-        data[4] = new TimeStampData(latest);
-        data[5] = new ReferenceData(status, columns[5].getTableReference());
+           data[0] = new ReferenceData(user, columns[0].getTableReference());
+           data[1] = new StringData(token);
+           data[2] = new StringData(ip);
+           data[3] = new TimeStampData(start);
+           data[4] = new TimeStampData(latest);
+           data[5] = new ConstantData(status.get__Id(), columns[5].getTableReference());
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -164,22 +172,17 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getStatusId(){
-
-        ReferenceData data = (ReferenceData)this.data[5];
-        return data.value;
-    }
-
     public SessionStatus getStatus(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
-        return new SessionStatus(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[5];
+        return (SessionStatus)(new SessionStatusTable().getConstantValue(data.value));
+
     }
 
-    public void setStatus(DBKeyInterface status){
+    public void setStatus(DataObjectInterface status){
 
-        ReferenceData data = (ReferenceData)this.data[5];
-        data.value = status;
+        ConstantData data = (ConstantData)this.data[5];
+        data.value = status.get__Id();
     }
 
 
@@ -187,12 +190,12 @@ public class PortalSession extends DataObject implements DataObjectInterface{
     public static PortalSession getlongLifeSystem( ) throws BackOfficeException{
 
        if(PortalSession.longLifeSystem == null)
-          PortalSession.longLifeSystem = new PortalSession(new LookupItem().addFilter(new ColumnFilter("Token", "SystemSessionToken")));
+          PortalSession.longLifeSystem = new PortalSession(new LookupItem().addFilter(new ColumnFilter("User", "ItClarifiesSystem")));
        if(!PortalSession.longLifeSystem.exists())
           throw new BackOfficeException(BackOfficeException.TableError, "Constant longLifeSystem is missing (db update required?)");
 
        return PortalSession.longLifeSystem;
-     }
+    }
 
 
     public static void clearConstantCache(){

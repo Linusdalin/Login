@@ -31,6 +31,16 @@
 
     <!--  Servlets for Login -->
 
+    <servlet>
+        <servlet-name>ping</servlet-name>
+        <servlet-class>external.PingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ping</servlet-name>
+        <url-pattern>/Ping</url-pattern>
+    </servlet-mapping>
+
+
 
     <servlet>
         <servlet-name>login</servlet-name>

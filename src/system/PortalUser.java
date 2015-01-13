@@ -4,6 +4,7 @@ import system.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -23,7 +24,6 @@ import pukkaBO.acs.*;
 public class PortalUser extends DataObject implements DataObjectInterface{
 
     private static PortalUser SystemUser = null;  
-    private static PortalUser ExternalUser = null;  
     private static PortalUser Super = null;  
 
 
@@ -31,7 +31,9 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public PortalUser(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -41,23 +43,28 @@ public class PortalUser extends DataObject implements DataObjectInterface{
     }
 
 
-    public PortalUser(String name, long userid, String password, String salt, String registration, DBKeyInterface organization, boolean active) throws BackOfficeException{
+    public PortalUser(String name, long userid, String password, String salt, String registration, DBKeyInterface organization, boolean active){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(userid);
-        data[2] = new StringData(password);
-        data[3] = new StringData(salt);
-        data[4] = new DateData(registration);
-        data[5] = new ReferenceData(organization, columns[5].getTableReference());
-        data[6] = new BoolData(active);
+           data[0] = new StringData(name);
+           data[1] = new IntData(userid);
+           data[2] = new StringData(password);
+           data[3] = new StringData(salt);
+           data[4] = new DateData(registration);
+           data[5] = new ReferenceData(organization, columns[5].getTableReference());
+           data[6] = new BoolData(active);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -198,22 +205,12 @@ public class PortalUser extends DataObject implements DataObjectInterface{
     public static PortalUser getSystemUser( ) throws BackOfficeException{
 
        if(PortalUser.SystemUser == null)
-          PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "System")));
+          PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "ItClarifiesSystem")));
        if(!PortalUser.SystemUser.exists())
           throw new BackOfficeException(BackOfficeException.TableError, "Constant SystemUser is missing (db update required?)");
 
        return PortalUser.SystemUser;
-     }
-
-    public static PortalUser getExternalUser( ) throws BackOfficeException{
-
-       if(PortalUser.ExternalUser == null)
-          PortalUser.ExternalUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "External")));
-       if(!PortalUser.ExternalUser.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant ExternalUser is missing (db update required?)");
-
-       return PortalUser.ExternalUser;
-     }
+    }
 
     public static PortalUser getSuper( ) throws BackOfficeException{
 
@@ -223,7 +220,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Super is missing (db update required?)");
 
        return PortalUser.Super;
-     }
+    }
 
 
     public static void clearConstantCache(){
@@ -231,7 +228,6 @@ public class PortalUser extends DataObject implements DataObjectInterface{
         //  Clear all cache when the application is uploaded.
 
         PortalUser.SystemUser = null;
-        PortalUser.ExternalUser = null;
         PortalUser.Super = null;
     }
 
