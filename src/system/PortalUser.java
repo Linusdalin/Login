@@ -202,7 +202,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
 
 
-    public static PortalUser getSystemUser( ) throws BackOfficeException{
+    public static PortalUser getSystemUser( )  throws BackOfficeException{
 
        if(PortalUser.SystemUser == null)
           PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "ItClarifiesSystem")));
@@ -212,7 +212,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
        return PortalUser.SystemUser;
     }
 
-    public static PortalUser getSuper( ) throws BackOfficeException{
+    public static PortalUser getSuper( )  throws BackOfficeException{
 
        if(PortalUser.Super == null)
           PortalUser.Super = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "Super")));

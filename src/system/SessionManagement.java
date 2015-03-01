@@ -62,6 +62,7 @@ public class SessionManagement {
             internalIPAccess.allow("199.192.112.*");
             internalIPAccess.allow("199.223.232.*");
             internalIPAccess.allow("199.223.236.*");
+
         }
     }
 
@@ -172,8 +173,10 @@ public class SessionManagement {
                     .addSorting(new Sorting(PortalSessionTable.Columns.Start.name(), Ordering.LAST)));
 
 
-       if(!session.exists())
+       if(!session.exists()){
+            PukkaLogger.log(PukkaLogger.Level.INFO, "No Session for token "+ sessionToken+" exists");
             return false;
+       }
 
         // Check the IP address. It is not allowed to access a session from another IP address.
         // This will prevent malicious session hijacking

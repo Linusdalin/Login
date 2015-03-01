@@ -71,7 +71,7 @@ public class OrganizationTable extends DataTable implements DataTableInterface{
     private static final String[][] TestValues = {
 
           {"demo.org", "3", "2014-01-02", "https://itclarifiesapistage.appspot.com", "Test organization in the system", "system"},
-          {"local.org", "1", "2014-01-02", "http://localhost:8080", "Test organization in the system", "system"},
+          {"local.org", "1", "2014-01-02", "https://localhost:8080", "Test organization in the system", "system"},
           {"evil.org", "1", "2014-01-03", "http://localhost:8080", "Another organization that should not see the documents", "system"},
 
 

@@ -61,8 +61,8 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
                 "bootstrap",
                 //properties.style,                                 // Style
                 "test/pukkaLogo.png",                               // TODO: Change logo to itClarifies logo
-                "ItClarifies Backoffice",                           // Caption
-                "Welcome to itClarifies backoffice ",               // Welcome text
+                "ItClarifies LOGIN SERVICE",                        // Caption
+                "Welcome to itClarifies Login Service ",            // Welcome text
                 new TableRendererStarlightStatic(this)              // Table render logic to render all the tables
         );
 
@@ -71,6 +71,7 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
         whiteList.allow("217.13.245.*");        // Office IP
         whiteList.allow("127.0.0.1");         // Local host for testing
         whiteList.allow("213.89.59.*");       // Linus Home
+        whiteList.allow("83.251.28.*");         // Linus Home
         whiteList.allow("213.185.250.*");       // Ulf Home
 
 

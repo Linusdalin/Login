@@ -110,22 +110,22 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
 
 
 
-    public static SessionStatus getopen( ) throws BackOfficeException{
+    public static SessionStatus getopen( )  {
 
        return (SessionStatus)SessionStatusTable.Values.get(0);
     }
 
-    public static SessionStatus getclosed( ) throws BackOfficeException{
+    public static SessionStatus getclosed( )  {
 
        return (SessionStatus)SessionStatusTable.Values.get(1);
     }
 
-    public static SessionStatus gettimeout( ) throws BackOfficeException{
+    public static SessionStatus gettimeout( )  {
 
        return (SessionStatus)SessionStatusTable.Values.get(2);
     }
 
-    public static SessionStatus getfailed( ) throws BackOfficeException{
+    public static SessionStatus getfailed( )  {
 
        return (SessionStatus)SessionStatusTable.Values.get(3);
     }

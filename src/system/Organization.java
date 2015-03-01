@@ -160,7 +160,7 @@ public class Organization extends DataObject implements DataObjectInterface{
 
 
 
-    public static Organization getnone( ) throws BackOfficeException{
+    public static Organization getnone( )  throws BackOfficeException{
 
        if(Organization.none == null)
           Organization.none = new Organization(new LookupItem().addFilter(new ColumnFilter("Name", "no org")));
@@ -170,7 +170,7 @@ public class Organization extends DataObject implements DataObjectInterface{
        return Organization.none;
     }
 
-    public static Organization getitClarifies( ) throws BackOfficeException{
+    public static Organization getitClarifies( )  throws BackOfficeException{
 
        if(Organization.itClarifies == null)
           Organization.itClarifies = new Organization(new LookupItem().addFilter(new ColumnFilter("Name", "itClarifies")));
