@@ -125,8 +125,20 @@ public class SessionManagement {
             PortalUser user = new PortalUser(new LookupItem()
                             .addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), name)));
 
-            if(!user.exists())
-               return emptySession;
+            if(!user.exists()){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "User "+ name+" does not exist.");
+                return emptySession;
+
+            }
+
+            if(!user.getActive()){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "User "+ name+" is not active.");
+                return emptySession;
+
+            }
+
 
             // Validate the password
 
@@ -139,8 +151,7 @@ public class SessionManagement {
 
         } catch (Exception e) {
 
-            //TODO: Log this
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Error");
+            PukkaLogger.log( e );
             return emptySession;
 
         }
@@ -170,11 +181,11 @@ public class SessionManagement {
 
        PortalSession session = new PortalSession(new LookupItem()
                     .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
-                    .addSorting(new Sorting(PortalSessionTable.Columns.Start.name(), Ordering.LAST)));
-
+                    .addSorting(new Sorting(PortalSessionTable.Columns.Start.name(), Ordering.LAST))
+                    );
 
        if(!session.exists()){
-            PukkaLogger.log(PukkaLogger.Level.INFO, "No Session for token "+ sessionToken+" exists");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "No Session for token "+ sessionToken + " exists");
             return false;
        }
 
@@ -191,7 +202,9 @@ public class SessionManagement {
 
         // Check if the session is open and not expired
 
-       boolean isActive =(session.getStatus().equals(SessionStatus.getopen()) && !expired(session));
+        SessionStatus status = session.getStatus();
+
+       boolean isActive =(status != null && status.get__Id()== 10) && !expired(session);
 
        if(isActive){
 

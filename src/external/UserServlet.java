@@ -7,10 +7,7 @@ import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import system.Organization;
-import system.PasswordManager;
-import system.PortalUser;
-import system.PortalUserTable;
+import system.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +47,7 @@ public class UserServlet extends GenericServlet {
             long userId             = getOptionalLong("id", req, -1);
             String username         = getMandatoryString("user", req);
             String password         = getMandatoryString("password", req);
+            boolean isActive        = getMandatoryBoolean("active", req);
 
             if(!validateSession(req, resp))
                 return;
@@ -91,12 +89,13 @@ public class UserServlet extends GenericServlet {
 
                 }
 
+                SessionToken activationCode = new SessionToken();
                 long existingUsers = new PortalUserTable().getCount();
 
                 //    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
 
 
-                PortalUser newUser = new PortalUser(username, (existingUsers + 1), encodedPwd, encodedSalt, registrationDate.getISODate(), org, true);
+                PortalUser newUser = new PortalUser(username, (existingUsers + 1), encodedPwd, encodedSalt, registrationDate.getISODate(), org, isActive, activationCode.toString());
                 newUser.store();
 
                 //org.setUsers(existingUsers + 1);
@@ -108,7 +107,8 @@ public class UserServlet extends GenericServlet {
                 Formatter formatter = getFormatFromParameters(req);
 
                 JSONObject response = new JSONObject()
-                        .put("user", newUser.getUserId());
+                        .put("user", newUser.getUserId())
+                        .put("activation", activationCode.toString());
 
                 sendJSONResponse(response, formatter, resp);
 
@@ -150,6 +150,7 @@ public class UserServlet extends GenericServlet {
                 user.setName(username);
                 user.setPassword(encodedPwd);
                 user.setSalt(encodedSalt);
+                user.setActive(isActive);
 
                 user.update();
 

@@ -306,7 +306,7 @@ public class SessionManagerTest {
 
             // Store the password in a new user in the database
 
-            PortalUser user = new PortalUser("Linus2", 4711,  encryptedString, new String(salt, "ISO-8859-1"), "2014-06-01", org.getKey(), true);
+            PortalUser user = new PortalUser("Linus2", 4711,  encryptedString, new String(salt, "ISO-8859-1"), "2014-06-01", org.getKey(), true, "");
             user.store();
 
             // Read back the user

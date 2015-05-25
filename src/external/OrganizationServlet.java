@@ -71,7 +71,7 @@ public class OrganizationServlet extends GenericServlet {
             // Create the system user and long life session to access this from other applications
 
             String systemUserName = organizationName + "System";
-            PortalUser systemUser = new PortalUser(systemUserName, 0, "xxx", "yyy", registrationDate.getISODate(),  organization.getKey(), false);
+            PortalUser systemUser = new PortalUser(systemUserName, 0, "xxx", "yyy", registrationDate.getISODate(),  organization.getKey(), false, "no code");
             systemUser.store();
 
             SessionToken token = new SessionToken();

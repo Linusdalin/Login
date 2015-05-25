@@ -249,6 +249,8 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
 
         // Generate encrypted passwords for the test users
 
+
+
         PasswordManager pwdManager = new PasswordManager();
         PortalUserTable allTestUsers = new PortalUserTable(new LookupList());
 
@@ -296,6 +298,7 @@ public class LoginSystem extends AppBackOffice implements BackOfficeInterface, S
             PukkaLogger.log(PukkaLogger.Level.INFO, "Failed to generate passwords for test users");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
 
 
     }

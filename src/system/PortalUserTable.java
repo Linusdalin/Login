@@ -27,7 +27,7 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "PortalUser";
     private static final String DESCRIPTION = "All registered users.";
 
-    public enum Columns {Name, UserId, Password, Salt, Registration, Organization, Active, }
+    public enum Columns {Name, UserId, Password, Salt, Registration, Organization, Active, ActivationCode, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -38,6 +38,7 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
             new DateColumn("Registration", DataColumn.noFormatting),
             new ReferenceColumn("Organization", DataColumn.noFormatting, new TableReference("Organization", "Name")),
             new BoolColumn("Active", DataColumn.noFormatting),
+            new StringColumn("ActivationCode", DataColumn.noFormatting),
     };
 
     private static final PortalUser associatedObject = new PortalUser();
@@ -64,24 +65,19 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"ItClarifiesSystem", "0", "not used", "salt", "2014-01-01", "itClarifies", "true", "system"},
-          {"Super", "1", "abc123", "salt", "2014-01-01", "itClarifies", "true", "system"},
+          {"ItClarifiesSystem", "0", "not used", "salt", "2014-01-01", "itClarifies", "true", "code", "system"},
+          {"Super", "1", "abc123", "salt", "2014-01-01", "itClarifies", "true", "code", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"DemoSystem", "0", "not used", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"demo", "2", "demodemo", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"admin", "3", "adminadmin", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"linus", "4", "linus", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"ulf", "5", "ulf", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"tolga", "6", "tolga", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"henrik", "7", "henrik", "salt", "2014-01-01", "demo.org", "true", "system"},
-          {"EvilSystem", "0", "not used", "salt", "2014-01-01", "evil.org", "true", "system"},
-          {"eve", "8", "eveeve", "salt", "2014-01-01", "evil.org", "true", "system"},
-          {"local", "9", "locallocal", "salt", "2014-01-01", "local.org", "true", "system"},
+          {"DemoSystem", "0", "not used", "salt", "2014-01-01", "demo.org", "true", "code", "system"},
+          {"demo", "2", "demodemo", "salt", "2014-01-01", "demo.org", "true", "code", "system"},
+          {"admin", "3", "adminadmin", "salt", "2014-01-01", "demo.org", "true", "code", "system"},
+          {"linus", "4", "linus", "salt", "2014-01-01", "demo.org", "true", "code", "system"},
+          {"EvilSystem", "0", "not used", "salt", "2014-01-01", "evil.org", "true", "code", "system"},
 
 
 

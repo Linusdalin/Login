@@ -74,9 +74,6 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
           {"EvilSystem", "EvilSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
           {"demo", "DummySessionToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
           {"admin", "DummyAdminToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
-          {"eve", "DummyEveToken", "127.0.0.1", "2015-05-01 00:00:00", "2015-05-01 00:00:00", "open", "system"},
-
-
 
     };
 
@@ -112,7 +109,15 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
         DBTimeStamp startTime = new DBTimeStamp();  // Now
         SessionStatus status;
 
-        status = SessionStatus.getopen();
+        //TODO: This should be the cnstant from the table. Check out why this doesn't work!??!
+        status = new SessionStatus(10, "open", "Active open sessions");
+
+
+        if(status == null)
+            System.out.println("Status = null!");
+        else
+            System.out.println("Setting status " + status.getName());
+
         PortalSession session = new PortalSession(user, token.toString(), ipAddress, startTime.getSQLTime().toString(), startTime.getSQLTime().toString(), status);
         session.store();
         return session;

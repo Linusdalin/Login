@@ -81,6 +81,14 @@
         <url-pattern>/Validate</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>activate</servlet-name>
+        <servlet-class>external.ActivationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>activate</servlet-name>
+        <url-pattern>/Activate</url-pattern>
+    </servlet-mapping>
 
 
         <welcome-file-list>

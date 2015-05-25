@@ -37,13 +37,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active) throws BackOfficeException{
+    public PortalUser(String name, long userid, String password, String salt, String registration, DataObjectInterface organization, boolean active, String activationcode) throws BackOfficeException{
 
-        this(name, userid, password, salt, registration, organization.getKey(), active);
+        this(name, userid, password, salt, registration, organization.getKey(), active, activationcode);
     }
 
 
-    public PortalUser(String name, long userid, String password, String salt, String registration, DBKeyInterface organization, boolean active){
+    public PortalUser(String name, long userid, String password, String salt, String registration, DBKeyInterface organization, boolean active, String activationcode){
 
         this();
         try{
@@ -59,6 +59,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
            data[4] = new DateData(registration);
            data[5] = new ReferenceData(organization, columns[5].getTableReference());
            data[6] = new BoolData(active);
+           data[7] = new StringData(activationcode);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -198,6 +199,20 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
         BoolData data = (BoolData) this.data[6];
         data.value = active;
+    }
+
+
+
+    public String getActivationCode(){
+
+        StringData data = (StringData) this.data[7];
+        return data.getStringValue();
+    }
+
+    public void setActivationCode(String activationcode){
+
+        StringData data = (StringData) this.data[7];
+        data.setStringValue(activationcode);
     }
 
 
